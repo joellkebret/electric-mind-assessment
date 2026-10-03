@@ -75,7 +75,10 @@ def api() -> Callable[[str, httpx.BaseTransport], httpx.Response]:
 
             def call(portfolio_id: str, transport: httpx.BaseTransport):
                 transport_box["transport"] = transport
-                return client.get(f"/portfolios/{portfolio_id}")
+                return client.get(
+                    f"/portfolios/{portfolio_id}",
+                    headers={"Authorization": "Bearer superday-demo-token"},
+                )
 
             yield call
     finally:
@@ -326,7 +329,10 @@ def test_hung_crm_is_cut_off_with_504():
     try:
         with TestClient(app) as client:
             started = time.perf_counter()
-            response = client.get("/portfolios/P-9001")
+            response = client.get(
+                "/portfolios/P-9001",
+                headers={"Authorization": "Bearer superday-demo-token"},
+            )
             elapsed = time.perf_counter() - started
     finally:
         app.dependency_overrides.clear()

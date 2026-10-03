@@ -3,10 +3,11 @@
 import httpx
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_http_client
+from app.api.deps import get_http_client, require_auth
 from app.crm.portfolio import load_portfolio
 
-router = APIRouter(tags=["portfolios"])
+# Auth middleware: Protected Portfolio Routes
+router = APIRouter(tags=["portfolios"], dependencies=[Depends(require_auth)])
 
 
 @router.get("/portfolios/{portfolio_id}")
