@@ -39,16 +39,18 @@ def main() -> None:
         if operation in {"q", "quit"}:
             print("Goodbye.")
             return
-        if operation not in {"1", "2"}:
-            print("Choose 1, 2, or q.")
+        if operation not in {"1", "2", "3"}:
+            print("Choose 1, 2, 3, or q.")
             continue
         portfolio = choose_portfolio(portfolios)
         if portfolio is None:
             continue
         if operation == "1":
             show_summary(portfolio["id"])
-        else:
+        elif operation == "2":
             show_holdings(portfolio["id"])
+        else:
+            show_allocation(portfolio["id"])
         input("\nPress Enter to continue.")
 
 
@@ -75,6 +77,7 @@ def print_home(clients: list[dict]) -> None:
     print("Operations")
     print("  1  Portfolio summary    GET /portfolios/{id}")
     print("  2  Holdings             GET /portfolios/{id}/holdings")
+    print("  3  Allocation           GET /portfolios/{id}/allocation")
     print("  q  Quit")
     print()
 
@@ -131,6 +134,30 @@ def show_holdings(portfolio_id: str) -> None:
             show(row["unrealizedGainLoss"]),
             show(row["dayChangeAmount"]),
         ]
+        for row in body
+    ]
+    widths = [
+        max(len(headers[index]), *(len(row[index]) for row in rows))
+        for index in range(len(headers))
+    ]
+    print("  " + "  ".join(header.ljust(widths[index]) for index, header in enumerate(headers)))
+    for row in rows:
+        print("  " + "  ".join(value.ljust(widths[index]) for index, value in enumerate(row)))
+
+
+def show_allocation(portfolio_id: str) -> None:
+    status, body = get_json(f"/portfolios/{portfolio_id}/allocation")
+    print()
+    print(f"GET /portfolios/{portfolio_id}/allocation    HTTP {status}")
+    if status != 200 or not isinstance(body, list):
+        print(body.get("message") if isinstance(body, dict) else body)
+        return
+    if not body:
+        print("  No holdings.")
+        return
+    headers = ["Asset class", "Value", "Percent"]
+    rows = [
+        [row["assetClass"], show(row["value"]), show(row["percent"])]
         for row in body
     ]
     widths = [

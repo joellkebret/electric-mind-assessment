@@ -86,7 +86,7 @@ erDiagram
 | Holding detail | `securities`, `security_prices` |
 | Ledger replay | `transactions` for one `holding_id` |
 
-`market_value`, `weight_percent`, gain/loss, and day change are calculated when a request is served. They are not columns.
+`market_value`, `weight_percent`, gain/loss, day change, and allocation `value` / `percent` are calculated when a request is served. They are not columns. Allocation groups holdings by `securities.asset_class` in `holding_id` order.
 
 ## Snapshot inputs and the ledger
 

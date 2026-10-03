@@ -17,6 +17,8 @@ Error bodies are `{ "error", "message" }`. This route does not check the auth to
 
 `GET /portfolios/{portfolio_id}/holdings` reads positions from SQLite. Market value, weight, gain/loss, and day change are calculated for that request. An unknown id is `404` with `{ "error": "not_found", "message" }`. A portfolio with no holdings is `200` and `[]`. A quantity of `0` produces `0` for market value, weight, unrealized gain/loss, and day-change amount. A `previousClosePrice` of `0` produces `dayChangePercent` of `0`. Each weight is that holding's market value divided by the portfolio total. Weights are not adjusted to sum to 1.
 
+`GET /portfolios/{portfolio_id}/allocation` groups those same request-time market values by `assetClass`. Each entry is `{ "assetClass", "value", "percent" }`. `value` is the sum of market value in that class. `percent` is `value / totalMarketValue` of the holdings. Classes are returned in the order they first appear on the holdings list (`holding_id` order). A class with no other holdings is a single entry with `percent` `1`. Classes that are absent are omitted. A portfolio with no holdings is `200` and `[]`. An unknown id is `404` with `{ "error": "not_found", "message" }`. A quantity of `0` adds `0` to its class and still counts that class as present. When every holding's market value is `0`, each `percent` is `0`. Percents are not adjusted to sum to 1.
+
 ## Run
 
 From `backend/solution` in PowerShell:
@@ -58,7 +60,7 @@ Start the API and the mock CRM, then from `backend/solution`:
 .\.venv\Scripts\python.exe scripts\demo.py
 ```
 
-The demo loads the sample clients into `data/portfolio.db` if that file is empty. Pick a portfolio, then portfolio summary or holdings. Those choices call the live endpoints.
+The demo loads the sample clients into `data/portfolio.db` if that file is empty. Pick a portfolio, then portfolio summary, holdings, or allocation. Those choices call the live endpoints.
 
 ## Show Task 1
 

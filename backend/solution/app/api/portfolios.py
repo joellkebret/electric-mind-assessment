@@ -1,12 +1,13 @@
 """Portfolio routes.
 
-Task 1 reads metadata from the mock CRM. Task 2 reads holdings from SQLite.
+Task 1 reads metadata from the mock CRM. Tasks 2 and 5 read holdings from SQLite.
 """
 
 import httpx
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.allocation.breakdown import list_allocation
 from app.api.deps import get_db, get_http_client
 from app.crm.portfolio import load_portfolio
 from app.holdings.positions import list_holdings
@@ -28,3 +29,11 @@ def get_holdings(
     db: Session = Depends(get_db),
 ) -> list[dict]:
     return list_holdings(db, portfolio_id)
+
+
+@router.get("/portfolios/{portfolio_id}/allocation")
+def get_allocation(
+    portfolio_id: str,
+    db: Session = Depends(get_db),
+) -> list[dict]:
+    return list_allocation(db, portfolio_id)
