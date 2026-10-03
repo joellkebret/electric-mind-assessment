@@ -8,11 +8,12 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.allocation.breakdown import list_allocation
-from app.api.deps import get_db, get_http_client
+from app.api.deps import get_db, get_http_client, require_auth
 from app.crm.portfolio import load_portfolio
 from app.holdings.positions import list_holdings
 
-router = APIRouter(tags=["portfolios"])
+# Auth middleware: Protected Portfolio Routes
+router = APIRouter(tags=["portfolios"], dependencies=[Depends(require_auth)])
 
 
 @router.get("/portfolios/{portfolio_id}")

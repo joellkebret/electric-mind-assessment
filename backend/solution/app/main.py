@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.api.deps import UnauthorizedError
 from app.api.router import api_router
 from app.crm.portfolio import PortfolioApiError
 from app.db.session import init_db
@@ -18,6 +19,18 @@ async def lifespan(_app: FastAPI):
 
 app = FastAPI(title="Portfolio API", lifespan=lifespan)
 app.include_router(api_router)
+
+
+# Auth middleware: Unauthorized Response Handling
+@app.exception_handler(UnauthorizedError)
+def unauthorized_error(_request: Request, _exc: UnauthorizedError) -> JSONResponse:
+    return JSONResponse(
+        status_code=401,
+        content={
+            "error": "unauthorized",
+            "message": "Missing or invalid authorization header",
+        },
+    )
 
 
 @app.exception_handler(PortfolioApiError)
