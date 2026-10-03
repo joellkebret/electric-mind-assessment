@@ -2,7 +2,18 @@
 
 Python service for the backend track. FastAPI serves HTTP. SQLAlchemy stores the normalized portfolio model in SQLite so later routes can share one request session.
 
-`GET /portfolios/{portfolio_id}` is the next route to implement. That response comes from the mock CRM. Holdings, history, allocation, currency, and ledger replay read this database.
+`GET /portfolios/{portfolio_id}` loads metadata from the mock CRM, not from SQLite. The handler calls `GET /crm/portfolios/{id}`, selects the account whose `acct_ref` matches the path, and maps it into the Task 1 schema. Accounts may be under `client_record.accounts` or `client_record.relationships.accounts`. Holdings, history, allocation, currency, and ledger replay read this database.
+
+Missing or null CRM fields are returned as `null`. A numeric `0` stays `0`. `P-9002`'s `dayChangePercent` is `0` because the CRM reports `0` when the previous value is zero; this route forwards that value.
+
+| Situation | Status | `error` |
+| --- | --- | --- |
+| No matching account | 404 | `not_found` |
+| CRM 5xx, or the CRM cannot be reached | 502 | `crm_unavailable` |
+| CRM body is not a usable account list | 502 | `crm_payload_invalid` |
+| CRM is slower than `CRM_TIMEOUT_SECONDS` (3s) | 504 | `crm_timeout` |
+
+Error bodies are `{ "error", "message" }`. This route does not check the auth token.
 
 ## Run
 

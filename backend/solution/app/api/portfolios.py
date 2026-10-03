@@ -1,14 +1,17 @@
-"""Task 1 starts here.
+"""Portfolio routes. Task 1 reads metadata from the mock CRM."""
 
-Add ``GET /portfolios/{portfolio_id}`` in this module. That handler should
-call the mock CRM at ``settings.crm_base_url`` (``GET /crm/portfolios/{id}``)
-with ``settings.crm_timeout_seconds``, then map the legacy payload into the
-Task 1 schema. Use ``Depends(get_db)`` only when a later task needs the
-database; Task 1 reads metadata from the CRM, not from these tables.
+import httpx
+from fastapi import APIRouter, Depends
 
-Auth, holdings, history, and the remaining routes are intentionally absent.
-"""
-
-from fastapi import APIRouter
+from app.api.deps import get_http_client
+from app.crm.portfolio import load_portfolio
 
 router = APIRouter(tags=["portfolios"])
+
+
+@router.get("/portfolios/{portfolio_id}")
+def get_portfolio(
+    portfolio_id: str,
+    client: httpx.Client = Depends(get_http_client),
+) -> dict:
+    return load_portfolio(portfolio_id, client)
