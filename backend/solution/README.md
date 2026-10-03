@@ -15,6 +15,8 @@ Missing or null CRM fields are returned as `null`. A numeric `0` stays `0`. `P-9
 
 Error bodies are `{ "error", "message" }`. This route does not check the auth token.
 
+`GET /portfolios/{portfolio_id}/holdings` reads positions from SQLite. Market value, weight, gain/loss, and day change are calculated for that request. An unknown id is `404` with `{ "error": "not_found", "message" }`. A portfolio with no holdings is `200` and `[]`. A quantity of `0` produces `0` for market value, weight, unrealized gain/loss, and day-change amount. A `previousClosePrice` of `0` produces `dayChangePercent` of `0`. Each weight is that holding's market value divided by the portfolio total. Weights are not adjusted to sum to 1.
+
 ## Run
 
 From `backend/solution` in PowerShell:
@@ -47,6 +49,16 @@ It listens on port 4002 (`CRM_BASE_URL`). Calls should time out after `CRM_TIMEO
 ## Database
 
 Table relationships and which future endpoint reads which table are in [SCHEMA.md](SCHEMA.md).
+
+## Terminal demo
+
+Start the API and the mock CRM, then from `backend/solution`:
+
+```powershell
+.\.venv\Scripts\python.exe scripts\demo.py
+```
+
+The demo loads the sample clients into `data/portfolio.db` if that file is empty. Pick a portfolio, then portfolio summary or holdings. Those choices call the live endpoints.
 
 ## Show Task 1
 
