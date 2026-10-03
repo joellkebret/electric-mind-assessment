@@ -48,6 +48,14 @@ It listens on port 4002 (`CRM_BASE_URL`). Calls should time out after `CRM_TIMEO
 
 Table relationships and which future endpoint reads which table are in [SCHEMA.md](SCHEMA.md).
 
+## Show Task 1
+
+With the API on port 3000 and the mock CRM on port 4002:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\check-task1.ps1
+```
+
 ## Tests
 
 ```powershell
